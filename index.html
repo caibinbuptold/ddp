@@ -33,7 +33,7 @@
         <slide class="title-slide segue nobackground">
   <hgroup class="auto-fadein">
     <h1>Developing Data Products Work</h1>
-    <h2>Summary for Regression Models Work</h2>
+    <h2>Summary for My Shiny Application</h2>
     <p>bincai<br/>Hadooper@Tencent</p>
   </hgroup>
   <article></article>  
@@ -43,21 +43,20 @@
     <!-- SLIDES -->
     <slide class="" id="slide-1" style="background:;">
   <hgroup>
-    <h2>Summary</h2>
+    <h2>Overview</h2>
   </hgroup>
   <article data-timings="">
     <ul>
-<li>Questions
+<li>Goal
 
 <ul>
-<li>Is an automatic or manual transmission better for miles per gallon (MPG)?</li>
-<li>How different is the MPG between automatic and manual transmissions?</li>
+<li>Write a shiny application with associated supporting documentation.</li>
 </ul></li>
-<li>Conclusion
+<li>Application
 
 <ul>
-<li>Cars with a manual transmission have a slightly better than automatic for MPG.</li>
-<li>This different is statistical INSIGNIFICANT.</li>
+<li>Normal (or Gaussian) distribution is a very commonly occurring continuous probability distribution</li>
+<li>This Shiny application draw normal distribution curve according to user&#39;s input</li>
 </ul></li>
 </ul>
 
@@ -67,37 +66,58 @@
 
 <slide class="" id="slide-2">
   <hgroup>
-    <h2>Exploratory Data</h2>
+    <h2>UI</h2>
   </hgroup>
   <article>
       
     <div class='left' style='float:left;width:48%'>
      <ul>
-<li>Data
+<li>Input parameters
 
 <ul>
-<li>mtcars is a data frame with 32 observations on 11 variables.</li>
-<li>For regression, variables vs and am should be category.</li>
+<li>mu: the mean or expectation of the distribution.</li>
+<li>sigma: its standard deviation.</li>
+<li>range: interval of axis x</li>
 </ul></li>
-</ul>
-
-<pre><code class="r">mtcars$vs &lt;- as.factor(mtcars$vs)
-mtcars$am &lt;- as.factor(mtcars$am)
-</code></pre>
+<li>Output
 
 <ul>
-<li>Relationship between mpg and am
+<li>Normal distribution parameters</li>
+<li>Plot of distribution</li>
+</ul></li>
+<li>Widget
 
 <ul>
-<li>mpg (Miles/(US) gallon) vs. am (Transmission).</li>
-<li>Boxplot it.</li>
-<li>There&#39;s a good separation of groups based on gas mileage.</li>
+<li>h5 for input</li>
+<li>sliderInput for mu and sigma</li>
+<li>radioButtons for range</li>
+<li>textOutput for echoing input value</li>
+<li>plotOutput for the plot</li>
 </ul></li>
 </ul>
 
     </div>    
     <div class='right' style='float:right;width:48%'>
-     <p><img src="assets/fig/unnamed-chunk-2.png" alt="plot of chunk unnamed-chunk-2"> </p>
+     <pre><code class="r">library(shiny)
+shinyUI(pageWithSidebar(
+ headerPanel(&quot;Bin&#39;s Work for ...!&quot;),
+ sidebarPanel(
+  h5(&quot;This application ....&quot; ),
+  sliderInput(inputId = &quot;mu&quot;, ...),
+  sliderInput(...),
+  radioButtons(inputId = &quot;range&quot;,
+    label = &quot;Parameter range:&quot;,
+    choices = list(&quot;-5, 5&quot; = &quot;FIVE&quot;,
+                   &quot;-10, 10&quot; = &quot;TEN&quot;,
+                   ...))
+ ),
+
+ mainPanel(
+  textOutput(&#39;text1&#39;),
+  plotOutput(&quot;nPlot&quot;)
+ )
+))
+</code></pre>
 
     </div>
   </article>
@@ -105,107 +125,74 @@ mtcars$am &lt;- as.factor(mtcars$am)
 
 <slide class="" id="slide-3">
   <hgroup>
-    <h2>Building the Model</h2>
+    <h2>Server</h2>
   </hgroup>
   <article>
       
     <div class='left' style='float:left;width:48%'>
      <ul>
-<li>Analysis of variance
+<li>Operations
 
 <ul>
-<li>There are 10 predictor variables in the data set.</li>
-<li>Some may play bigger role to determination of mpg.</li>
-<li>Using aov to fit an analysis of variance model.</li>
+<li>Using if-else to process radioButtons input to x.</li>
+<li>renderText to combine input params.</li>
+<li>renderPlot to plot normal distribution.</li>
 </ul></li>
 </ul>
-
-<pre><code>##             Df Sum Sq Mean Sq F value Pr(&gt;F)    
-## cyl          1    818     818  116.42  5e-10 ***
-## disp         1     38      38    5.35 0.0309 *  
-## hp           1      9       9    1.33 0.2610    
-## drat         1     16      16    2.34 0.1406    
-## wt           1     77      77   11.03 0.0032 ** 
-## qsec         1      4       4    0.56 0.4617    
-## vs           1      0       0    0.02 0.8932    
-## am           1     14      14    2.06 0.1659    
-## gear         1      1       1    0.14 0.7137    
-## carb         1      0       0    0.06 0.8122    
-## Residuals   21    147       7                   
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-</code></pre>
 
     </div>    
     <div class='right' style='float:right;width:48%'>
-     <ul>
-<li>Fit the model
-
-<ul>
-<li>Variables with p-value below 0.05 are more important.</li>
-<li>Variables cyl, disp, wt, drat and am are selected.</li>
-<li>After fit the first two models, drat ans disp are droped. </li>
-</ul></li>
-</ul>
-
-<pre><code class="r">lm &lt;- lm(mpg ~ cyl + wt + am, data = mtcars)
-summary(lm)
-</code></pre>
-
-<pre><code>## 
-## Call:
-## lm(formula = mpg ~ cyl + wt + am, data = mtcars)
-## 
-## Residuals:
-##    Min     1Q Median     3Q    Max 
-## -4.173 -1.534 -0.539  1.586  6.081 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)   39.418      2.641   14.92  7.4e-15 ***
-## cyl           -1.510      0.422   -3.58   0.0013 ** 
-## wt            -3.125      0.911   -3.43   0.0019 ** 
-## am1            0.176      1.304    0.14   0.8933    
-## ---
-## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
-## 
-## Residual standard error: 2.61 on 28 degrees of freedom
-## Multiple R-squared:  0.83,   Adjusted R-squared:  0.812 
-## F-statistic: 45.7 on 3 and 28 DF,  p-value: 6.51e-11
+     <pre><code class="r">library(shiny)
+shinyServer(
+ function(input, output) {
+  x &lt;- reactive({      
+   r=5
+   if(input$range == &quot;TEN&quot;)    r=10
+   ....
+   r
+  }) 
+  output$text1 &lt;- renderText(
+   paste( &quot;....&quot;, {input$mu} ... )
+  )
+  output$nPlot &lt;- renderPlot({ 
+   r &lt;- x()
+   x &lt;- seq(-r,r,length=1000)
+   y &lt;- dnorm(x,mean={input$mu}, 
+              sd={input$sigma})
+   plot(x, y, type=&quot;l&quot;, lwd=1)
+  })
+ }
+)
 </code></pre>
 
     </div>
   </article>
 </slide>
 
-<slide class="" id="slide-4">
+<slide class="" id="slide-4" style="background:;">
   <hgroup>
-    <h2>Diagnostic the model</h2>
+    <h2>Summary</h2>
   </hgroup>
-  <article>
-      
-    <div class='left' style='float:left;width:48%'>
-     <ul>
-<li>Result
+  <article data-timings="">
+    <ul>
+<li>Requirement Fulfillment
 
 <ul>
-<li>The adjusted r-squared is 0.83</li>
-<li>Compare with cylinders and weight, the ceofficient of the am variable is small (0.176).</li>
-<li>p-value of am is 0.8933</li>
-<li>We cannot reject the hypothesis that the coefficient of am is 0.</li>
-<li>No discernible pattern found in diagnostic graph.</li>
+<li>Widget: slider, radio buttons, textOutput, plotOutput</li>
+<li>sever.R operations: get range from radio buttons, create output text</li>
+<li>Reactive output: echo input parameter, draw the distribution</li>
+<li>Document: Meaning of parameters</li>
+</ul></li>
+<li>URL
+
+<ul>
+<li>Deployed application: <a href="https://caibinbupt.shinyapps.io/ddp2">https://caibinbupt.shinyapps.io/ddp2</a></li>
+<li>server.R and ui.R code: <a href="https://github.com/caibinbupt/ddp2">https://github.com/caibinbupt/ddp2</a></li>
 </ul></li>
 </ul>
 
-    </div>    
-    <div class='right' style='float:right;width:48%'>
-     <ul>
-<li>Diagnostic
-<img src="assets/fig/unnamed-chunk-5.png" alt="plot of chunk unnamed-chunk-5"> </li>
-</ul>
-
-    </div>
   </article>
+  <!-- Presenter Notes -->
 </slide>
 
     <slide class="backdrop"></slide>
@@ -214,25 +201,25 @@ summary(lm)
     <ul>
       <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=1 title='Summary'>
+        data-slide=1 title='Overview'>
          1
       </a>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=2 title='Exploratory Data'>
+        data-slide=2 title='UI'>
          2
       </a>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=3 title='Building the Model'>
+        data-slide=3 title='Server'>
          3
       </a>
     </li>
     <li>
       <a href="#" target="_self" rel='tooltip' 
-        data-slide=4 title='Diagnostic the model'>
+        data-slide=4 title='Summary'>
          4
       </a>
     </li>
